@@ -1,0 +1,33 @@
+CREATE OR REPLACE EXTERNAL TABLE `dte-de-course-375215.ezic_de_zoomcamp.external_fhv_2019`
+OPTIONS (
+  format = 'CSV',
+  uris = ['gs://ezic-prefect-de-zoomcamp/fhv_tripdata_2019-01.csv.gz', 'gs://ezic-prefect-de-zoomcamp/fhv_tripdata_2019-02.csv.gz', 'gs://ezic-prefect-de-zoomcamp/fhv_tripdata_2019-03.csv.gz', 'gs://ezic-prefect-de-zoomcamp/fhv_tripdata_2019-04.csv.gz', 'gs://ezic-prefect-de-zoomcamp/fhv_tripdata_2019-05.csv.gz', 'gs://ezic-prefect-de-zoomcamp/fhv_tripdata_2019-06.csv.gz', 'gs://ezic-prefect-de-zoomcamp/fhv_tripdata_2019-07.csv.gz', 'gs://ezic-prefect-de-zoomcamp/fhv_tripdata_2019-08.csv.gz', 'gs://ezic-prefect-de-zoomcamp/fhv_tripdata_2019-09.csv.gz', 'gs://ezic-prefect-de-zoomcamp/fhv_tripdata_2019-10.csv.gz', 'gs://ezic-prefect-de-zoomcamp/fhv_tripdata_2019-11.csv.gz', 'gs://ezic-prefect-de-zoomcamp/fhv_tripdata_2019-12.csv.gz']
+);
+
+-- Create table from external table
+CREATE OR REPLACE TABLE `dte-de-course-375215.ezic_de_zoomcamp.fhv_2019` AS
+SELECT * FROM `dte-de-course-375215.ezic_de_zoomcamp.external_fhv_2019`;
+
+-- Count from table
+SELECT COUNT(pickup_datetime)
+FROM `dte-de-course-375215.ezic_de_zoomcamp.fhv_2019`;
+
+-- Count from external table
+SELECT COUNT(pickup_datetime)
+FROM `dte-de-course-375215.ezic_de_zoomcamp.external_fhv_2019`;
+
+-- Count nulls from PU and DO location ID
+SELECT COUNT(*)
+FROM `dte-de-course-375215.ezic_de_zoomcamp.fhv_2019`
+WHERE PUlocationID IS NULL AND DOlocationID IS NULL;
+
+-- Create partitioned and clustered table
+CREATE OR REPLACE TABLE dte-de-course-375215.ezic_de_zoomcamp.fhv_2019_partitoned_clustered
+PARTITION BY DATE(pickup_datetime)
+CLUSTER BY AFFILIATED_base_number AS
+SELECT * FROM dte-de-course-375215.ezic_de_zoomcamp.external_fhv_2019;
+
+-- Retrieve the distinct affiliated_base_number between pickup_datetime 2019/03/01 and 2019/03/31 (inclusive)
+SELECT DISTINCT(Affiliated_base_number)
+FROM `dte-de-course-375215.ezic_de_zoomcamp.fhv_2019_partitoned_clustered`
+WHERE DATE(pickup_datetime) BETWEEN DATE('2019-03-01') AND DATE('2019-03-31')
