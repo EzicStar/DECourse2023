@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: staging
+    database: dte-de-course-375215
+    schema: ezic_de_zoomcamp
+  
+    tables:
+      - name: green_tripdata
+      - name: yellow_tripdata
+    
